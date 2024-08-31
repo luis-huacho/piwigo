@@ -1,0 +1,44 @@
+services:
+  web:
+    image: nginx:latest
+    container_name: "${PROJECT_NAME}_nginx"
+    ports:
+      - "10080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./app:/var/www/html
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - php
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: "${PROJECT_NAME}_php"
+    volumes:
+      - ./app:/var/www/html
+      - ./php.ini:/usr/local/etc/php/php.ini:ro
+    depends_on:
+      - ffmpeg
+
+  # db:
+  #   image: mysql:5.7
+  #   container_name: "${PROJECT_NAME}_mysql"
+  #   ports:
+  #     - "3306:3306"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+  #     MYSQL_DATABASE: $MYSQL_DATABASE
+  #     MYSQL_USER: $MYSQL_USER
+  #     MYSQL_PASSWORD: $MYSQL_PASSWORD
+  #   volumes:
+  #     - ./db_data:/var/lib/mysql
+  #     - ./mysql.cnf:/etc/mysql/conf.d/custom.cnf:ro
+  #   command: --default-authentication-plugin=mysql_native_password
+
+  ffmpeg:
+    image: jrottenberg/ffmpeg:latest
+    container_name: "${PROJECT_NAME}_ffmpeg"
+    volumes:
+      - ./app:/var/www/html
